@@ -1,5 +1,6 @@
 const DATA_URL = "data/santa_datensatz.csv";
 const euro = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR" });
+const euroRounded = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
 const dateFormat = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 let transactions = [];
 
@@ -77,14 +78,37 @@ function renderMetrics(items) {
 
 function renderTrend(items) {
   const points = items.length ? items : actualTransactions();
-  const width = 620, height = 190, pad = { top: 12, right: 12, bottom: 27, left: 8 };
+  const width = 620, height = 190, pad = { top: 12, right: 12, bottom: 27, left: 62 };
+  if (!points.length) { $("trendChart").innerHTML = "<p class=\"metric-note\">No balance history to display.</p>"; return; }
   const min = Math.min(...points.map((item) => item.balance)), max = Math.max(...points.map((item) => item.balance));
   const range = max - min || 1;
+  const yTicks = Array.from({ length: 5 }, (_, index) => {
+    const value = max - (range * index) / 4;
+    const y = pad.top + (index / 4) * (height - pad.top - pad.bottom);
+    return `<line class="chart-grid" x1="${pad.left}" y1="${y}" x2="${width}" y2="${y}"/><text class="chart-y-label" x="${pad.left - 8}" y="${y}" text-anchor="end" dominant-baseline="central">${euroRounded.format(value)}</text>`;
+  }).join("");
   const coords = points.map((item, index) => [pad.left + (index / Math.max(points.length - 1, 1)) * (width - pad.left - pad.right), pad.top + (1 - (item.balance - min) / range) * (height - pad.top - pad.bottom)]);
   const line = coords.map(([x, y]) => `${x},${y}`).join(" ");
   const area = `${pad.left},${height - pad.bottom} ${line} ${width - pad.right},${height - pad.bottom}`;
   const labels = [points[0], points[Math.floor((points.length - 1) / 2)], points.at(-1)].filter(Boolean);
-  $("trendChart").innerHTML = `<svg class="chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="areaFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#b83232" stop-opacity=".18"/><stop offset="1" stop-color="#b83232" stop-opacity="0"/></linearGradient></defs><line class="chart-grid" x1="0" y1="45" x2="${width}" y2="45"/><line class="chart-grid" x1="0" y1="105" x2="${width}" y2="105"/><polygon class="chart-area" points="${area}"/><polyline class="chart-line" points="${line}"/>${coords.filter((_, i) => i === 0 || i === coords.length - 1).map(([x, y]) => `<text class="chart-sleigh" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central">🛷</text>`).join("")}${labels.map((item, i) => `<text class="chart-label" x="${i === 0 ? 0 : i === 1 ? width / 2 - 23 : width - 58}" y="${height - 5}">${item.date.toLocaleDateString("en-GB", { month: "short" })}</text>`).join("")}</svg>`;
+  $("trendChart").innerHTML = `<svg class="chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="areaFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#b83232" stop-opacity=".18"/><stop offset="1" stop-color="#b83232" stop-opacity="0"/></linearGradient></defs>${yTicks}<polygon class="chart-area" points="${area}"/><polyline class="chart-line" points="${line}"/><text class="chart-sleigh" x="${coords.at(-1)[0]}" y="${coords.at(-1)[1]}" text-anchor="middle" dominant-baseline="central">🛷</text>${labels.map((item, i) => `<text class="chart-label" x="${i === 0 ? 0 : i === 1 ? width / 2 - 23 : width - 58}" y="${height - 5}">${item.date.toLocaleDateString("en-GB", { month: "short" })}</text>`).join("")}</svg>`;
+  const svg = $("trendChart").querySelector("svg");
+  const marker = svg.querySelector(".chart-sleigh");
+  svg.addEventListener("pointermove", (event) => {
+    const bounds = svg.getBoundingClientRect();
+    const pointerX = Math.max(coords[0][0], Math.min(coords.at(-1)[0], ((event.clientX - bounds.left) / bounds.width) * width));
+    let segment = coords.findIndex((point, index) => index < coords.length - 1 && pointerX <= coords[index + 1][0]);
+    if (segment < 0) segment = coords.length - 2;
+    if (segment < 0) { marker.setAttribute("x", coords[0][0]); return; }
+    const [x1, y1] = coords[segment], [x2, y2] = coords[segment + 1];
+    const ratio = (pointerX - x1) / (x2 - x1 || 1);
+    marker.setAttribute("x", pointerX);
+    marker.setAttribute("y", y1 + (y2 - y1) * ratio);
+  });
+  svg.addEventListener("pointerleave", () => {
+    marker.setAttribute("x", coords.at(-1)[0]);
+    marker.setAttribute("y", coords.at(-1)[1]);
+  });
 }
 
 function transactionMarkup(item) {
