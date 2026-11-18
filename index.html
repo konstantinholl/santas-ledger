@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A calm, festive financial overview for Santa." />
+    <title>Santa's Ledger | Financial Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="snow" aria-hidden="true">✦　❄　✦　　　 ❅　　✦　❄　　✦</div>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="#overview" aria-label="Santa's Ledger home">
+          <span class="brand-mark" aria-hidden="true">🎄</span>
+          <span><strong>Santa's Ledger</strong><small>Personal finance, made merry</small></span>
+        </a>
+        <div class="status-pill"><span class="status-dot"></span><span id="dataStatus">Live from santa_datensatz.csv</span></div>
+      </header>
+
+      <section class="hero" id="overview">
+        <div class="hero-copy">
+          <p class="eyebrow">North Pole financial office · 2024</p>
+          <h1>A little clarity for<br /><em>the big night.</em></h1>
+          <p class="hero-text">A warm, simple view of your account, so every gift, sleigh ride and cinnamon roll has a place in the plan.</p>
+          <p class="cheer" id="cheerMessage" role="status">Ho ho ho! Santa's savings are sleighing it.</p>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="moon"></div>
+          <span class="star star-one">✦</span><span class="star star-two">✦</span><span class="star star-three">·</span>
+          <div class="tree">🎄</div>
+          <div class="snowbank"></div>
+        </div>
+      </section>
+
+      <section class="toolbar" aria-label="Dashboard controls">
+        <div class="view-switch" role="tablist" aria-label="Dashboard view">
+          <button class="view-button active" id="summaryTab" role="tab" aria-selected="true" aria-controls="summaryView">Overview</button>
+          <button class="view-button" id="detailsTab" role="tab" aria-selected="false" aria-controls="detailsView">Transactions</button>
+        </div>
+        <div class="filters">
+          <label>Period <select id="periodFilter" aria-label="Filter by period"><option value="all">All time</option></select></label>
+          <label>Category <select id="categoryFilter" aria-label="Filter by category"><option value="all">All categories</option></select></label>
+        </div>
+      </section>
+
+      <section id="summaryView" role="tabpanel" aria-labelledby="summaryTab">
+        <div class="metrics-grid">
+          <article class="metric-card balance-card">
+            <div class="metric-icon">✧</div><p>Current balance</p><strong id="currentBalance">—</strong>
+            <span class="metric-note" id="balanceNote">After the latest transaction</span>
+          </article>
+          <article class="metric-card">
+            <div class="metric-icon income-icon">↗</div><p>Total income</p><strong class="positive" id="totalIncome">—</strong>
+            <span class="metric-note">Money in, excluding opening balance</span>
+          </article>
+          <article class="metric-card">
+            <div class="metric-icon spending-icon">↘</div><p>Total spending</p><strong class="negative" id="totalSpending">—</strong>
+            <span class="metric-note">Outgoings across all categories</span>
+          </article>
+          <article class="metric-card">
+            <div class="metric-icon">#</div><p>Transactions</p><strong id="transactionCount">—</strong>
+            <span class="metric-note">Filtered account movements</span>
+          </article>
+        </div>
+
+        <div class="content-grid">
+          <article class="panel trend-panel">
+            <div class="panel-heading"><div><p class="eyebrow">Account journey</p><h2>Balance trend</h2></div><span class="legend"><i></i> Balance</span></div>
+            <div class="chart-wrap" id="trendChart" role="img" aria-label="Balance trend chart"></div>
+          </article>
+          <article class="panel category-panel">
+            <div class="panel-heading"><div><p class="eyebrow">Where it goes</p><h2>Spending by category</h2></div></div>
+            <div id="categoryList" class="category-list"></div>
+          </article>
+        </div>
+
+        <article class="panel recent-panel">
+          <div class="panel-heading"><div><p class="eyebrow">Fresh from the workshop</p><h2>Recent transactions</h2></div><button class="text-button" id="showDetails">See all transactions <span>→</span></button></div>
+          <div id="recentList" class="transaction-list"></div>
+        </article>
+      </section>
+
+      <section id="detailsView" class="details-view hidden" role="tabpanel" aria-labelledby="detailsTab">
+        <article class="panel">
+          <div class="panel-heading"><div><p class="eyebrow">The full ledger</p><h2>All transactions</h2></div><span class="result-count" id="resultCount"></span></div>
+          <div class="table-wrap">
+            <table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th class="amount-column">Amount</th><th class="amount-column">Balance</th></tr></thead><tbody id="transactionTable"></tbody></table>
+          </div>
+        </article>
+      </section>
+
+      <footer><span>✦ Prepared with care for Santa's university review</span><span>Source: <code>data/santa_datensatz.csv</code> · Opening balance excluded from transaction totals</span></footer>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
