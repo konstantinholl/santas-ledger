@@ -32,6 +32,12 @@ python3 -m http.server 8000
 
 Then open <http://localhost:8000>. Use a web server because browsers generally block the dashboard's CSV `fetch()` when opening `index.html` directly as a local file. The site uses system fonts and makes no third-party font requests.
 
+## GitHub Pages
+
+GitHub Pages is deployed by `.github/workflows/pages.yml`. The workflow deploys only `publication/` when changes are pushed to `main`, and can also be started manually with **Actions > Deploy publication to GitHub Pages > Run workflow**.
+
+In the repository settings, set **Pages > Build and deployment > Source** to **GitHub Actions**. Pushes to `main` will publish the resulting URL automatically.
+
 ## AI notice and publication notes
 
 The Santa transaction data is fictional and AI-generated for this project. AI also assisted with the website's creation. Dashboard figures are derived from the included CSV; no real financial values are represented. This is a temporary university project, not a permanent commercial service. No Impressum is included, in line with the course instruction.
